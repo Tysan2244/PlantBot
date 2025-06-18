@@ -17,7 +17,7 @@
             --sage-green: #9CAF88;
             --forest-green: #6B8E5A;
             --warm-cream: #FAF7F2;
-            --earth-brown: #8B7355;
+            --earth-brown: #000000;
             --soft-terracotta: #D4A574;
             --warm-white: #FEFCF8;
             --moss-green: #7A8471;
@@ -77,7 +77,7 @@
             box-shadow: 0 4px 15px rgba(107, 142, 90, 0.2);
         }
         
-        .natural-accent { color: var(--earth-brown); }
+        .natural-accent { color: #000000; }
         .sage-accent { color: var(--sage-green); }
         .terracotta-accent { color: var(--soft-terracotta); }
         
@@ -255,6 +255,24 @@
             transform: rotate(45deg) translate(-5px, -6px);
         }
         
+        /* Chat Input Mobile Fix */
+        .chat-input-container {
+            display: flex;
+            gap: 8px;
+            width: 100%;
+        }
+        
+        .chat-input-container input {
+            flex: 1;
+            min-width: 0;
+        }
+        
+        .chat-input-container button {
+            flex-shrink: 0;
+            width: 56px;
+            height: 56px;
+        }
+        
         /* Mobile-first layout - chatbot appears first */
         @media (max-width: 1023px) {
             .mobile-chatbot-first {
@@ -295,6 +313,27 @@
                 padding-top: 0;
                 padding-bottom: 2rem;
             }
+            
+            /* Mobile chat input fixes */
+            .chat-input-container {
+                gap: 6px;
+                padding: 0 4px;
+            }
+            
+            .chat-input-container input {
+                font-size: 16px; /* Prevents zoom on iOS */
+                padding: 12px 16px;
+            }
+            
+            .chat-input-container button {
+                width: 48px;
+                height: 48px;
+                padding: 12px;
+            }
+            
+            .chatbot-tool {
+                margin: 0 8px;
+            }
         }
         
         /* Hide hamburger on desktop */
@@ -318,7 +357,7 @@
             border: 1px solid rgba(156, 175, 136, 0.2);
             transition: all 0.3s ease;
             text-decoration: none;
-            color: var(--earth-brown);
+            color: #000000;
             font-weight: 500;
             cursor: pointer;
         }
@@ -333,6 +372,23 @@
         .mobile-nav-item i {
             margin-right: 10px;
             width: 20px;
+        }
+        
+        /* Ensure text above chatbot is black */
+        .main-content-section h2,
+        .main-content-section h3,
+        .main-content-section p,
+        .main-content-section span {
+            color: #000000;
+        }
+        
+        /* Override white text in hero section */
+        .warm-gradient h2 {
+            color: white !important;
+        }
+        
+        .warm-gradient p {
+            color: #f0f9ff !important;
         }
     </style>
 </head>
@@ -537,17 +593,17 @@
                                         </div>
                                     </div>
                                     
-                                    <div class="flex space-x-3">
+                                    <div class="chat-input-container">
                                         <input 
                                             type="text" 
                                             id="chatInput" 
                                             placeholder="Ask about your houseplant (e.g., 'My snake plant's leaves are looking sad...')"
-                                            class="flex-1 border-2 rounded-2xl px-6 py-4 chat-input text-natural-accent placeholder-gray-400"
+                                            class="border-2 rounded-2xl px-6 py-4 chat-input natural-accent placeholder-gray-400"
                                             style="border-color: rgba(156, 175, 136, 0.3);"
                                         >
                                         <button 
                                             id="sendButton"
-                                            class="warm-button text-white px-8 py-4 rounded-2xl font-medium disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
+                                            class="warm-button text-white rounded-2xl font-medium disabled:opacity-50 disabled:cursor-not-allowed shadow-lg flex items-center justify-center"
                                         >
                                             <i class="fas fa-paper-plane"></i>
                                         </button>
@@ -1410,9 +1466,9 @@
 </html>
     <script id="html_badge_script1">
         window.__genspark_remove_badge_link = "https://www.genspark.ai/api/html_badge/" +
-            "remove_badge?token=To%2FBnjzloZ3UfQdcSaYfDk8TbmS0Yn9HenCZmjQX9zUEdLMEsQQFnFdE83nFxAeEj9btomHSI0YF1n904mPaF37REsl55Y2mgbORA6pnwnavbyDGKRe2UQs%2Fgt3L6KlwJrV5jVFYNzye6fL5Iov0VE1SK%2BsIEmXddu4fLosO%2BJ5Y5kOqLx78fMbAEMkTUUMar%2FZdhLOhobah%2B5qQXZ2i%2FSI2OLxl97ms9G8D%2BEFQCy1U4sOL%2Fjg9pG2JHHugHCcuVMJY%2BS9FmfwQxQ%2FyWV6caumcn75KB4oGej09zBund35XONYMiqIsaYP%2FPptmRDFhEbe0k9ZHae6nCvs%2FSQprea4vtEtux2nZSiU7XLIAr%2FMeTRonRuyjIq1HxCx%2F%2FKN6WmRmf6XKaR0zMQxxGJLCvr2oX2wHZcOlvTMJlqwUht0KM0Oird0I8FeQ5hCF5Z6MjsRJugfFxrspetZyYm7Dhhoy1ScKwlRZ8vjYFBUHZaw9wwJS1TrUxp1RfspL9KS%2BbCyDuyeWQyjjkI1vIRbRnw%3D%3D";
+            "remove_badge?token=To%2FBnjzloZ3UfQdcSaYfDgPhVhIB4z1gfdj%2BA7x4d04lB2NYS0IkNJlYPifz7YbcVwlRpLkjCzkLaZiCtGi8YzfYrrlDrYrOPfbU%2BiMfl3UfbImyUs4egWXPASuTta2S7IceoxI5VJorxwNyEJzi7eDfftC3i0wo00aYQJxrHguAh8KK3wJU1%2FOVn1ytWLOBk1AacB2Bef25thnRj66a%2FeRSvV0%2FN68J6Yt8QMwrCnp47DconSSojADuoEu2shtfe%2FsgjOyNPiiSjyu1hZu4lkav2JSmYMAfV4BIGMYSdnrknH9gy42qP%2F3L0h8O7qYMwyJYE0AESyMGy4s4ai11VHAv9akhcpBz1uDq8Eb62q49PGUtZ0S2SghXaKR9se3LcLPAXeqjThDBZJX%2FWPn1XS9%2FSpw8KrpdiWoLHgalX2fhBhl2a%2BBwWLt6qDke9yJsfytamYw1c2bqsyQivWJw6QMuw1BH%2BK3ICNsYPtcjtuICIyPZh4YbHLye2UmCEVitPNPQS9TtOuttJXAcg0MB%2BZJ6mopePjcijuATCbf%2FA%2Fs%3D";
         window.__genspark_locale = "en-US";
-        window.__genspark_token = "To/BnjzloZ3UfQdcSaYfDk8TbmS0Yn9HenCZmjQX9zUEdLMEsQQFnFdE83nFxAeEj9btomHSI0YF1n904mPaF37REsl55Y2mgbORA6pnwnavbyDGKRe2UQs/gt3L6KlwJrV5jVFYNzye6fL5Iov0VE1SK+sIEmXddu4fLosO+J5Y5kOqLx78fMbAEMkTUUMar/ZdhLOhobah+5qQXZ2i/SI2OLxl97ms9G8D+EFQCy1U4sOL/jg9pG2JHHugHCcuVMJY+S9FmfwQxQ/yWV6caumcn75KB4oGej09zBund35XONYMiqIsaYP/PptmRDFhEbe0k9ZHae6nCvs/SQprea4vtEtux2nZSiU7XLIAr/MeTRonRuyjIq1HxCx//KN6WmRmf6XKaR0zMQxxGJLCvr2oX2wHZcOlvTMJlqwUht0KM0Oird0I8FeQ5hCF5Z6MjsRJugfFxrspetZyYm7Dhhoy1ScKwlRZ8vjYFBUHZaw9wwJS1TrUxp1RfspL9KS+bCyDuyeWQyjjkI1vIRbRnw==";
+        window.__genspark_token = "To/BnjzloZ3UfQdcSaYfDgPhVhIB4z1gfdj+A7x4d04lB2NYS0IkNJlYPifz7YbcVwlRpLkjCzkLaZiCtGi8YzfYrrlDrYrOPfbU+iMfl3UfbImyUs4egWXPASuTta2S7IceoxI5VJorxwNyEJzi7eDfftC3i0wo00aYQJxrHguAh8KK3wJU1/OVn1ytWLOBk1AacB2Bef25thnRj66a/eRSvV0/N68J6Yt8QMwrCnp47DconSSojADuoEu2shtfe/sgjOyNPiiSjyu1hZu4lkav2JSmYMAfV4BIGMYSdnrknH9gy42qP/3L0h8O7qYMwyJYE0AESyMGy4s4ai11VHAv9akhcpBz1uDq8Eb62q49PGUtZ0S2SghXaKR9se3LcLPAXeqjThDBZJX/WPn1XS9/Spw8KrpdiWoLHgalX2fhBhl2a+BwWLt6qDke9yJsfytamYw1c2bqsyQivWJw6QMuw1BH+K3ICNsYPtcjtuICIyPZh4YbHLye2UmCEVitPNPQS9TtOuttJXAcg0MB+ZJ6mopePjcijuATCbf/A/s=";
     </script>
     
     <script id="html_notice_dialog_script" src="https://www.genspark.ai/notice_dialog.js"></script>

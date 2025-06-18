@@ -1,0 +1,80 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OpenAI API Key Tester</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .container { max-width: 600px; margin: auto; }
+        .input-field { width: 100%; padding: 10px; margin-bottom: 10px; }
+        .button { padding: 10px 20px; background-color: #4CAF50; color: white; border: none; cursor: pointer; }
+        .button:hover { background-color: #45a049; }
+        .message { margin-top: 20px; }
+        .error { color: red; }
+        .success { color: green; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>OpenAI API Key Tester</h1>
+        <p>Enter your OpenAI API key below and select a test to verify its validity.</p>
+        <p><strong>Security Warning:</strong> Do not share your API key with others. Ensure you are testing in a secure environment.</p>
+
+        <input type="password" id="apiKey" class="input-field" placeholder="Enter your API key" />
+
+        <select id="testType" class="input-field">
+            <option value="simple">Simple Test</option>
+            <option value="plant">Plant-Focused Test</option>
+        </select>
+
+        <button class="button" onclick="testApiKey()">Test API Key</button>
+
+        <div id="message" class="message"></div>
+    </div>
+
+    <script>
+        function testApiKey() {
+            const apiKey = document.getElementById('apiKey').value;
+            const testType = document.getElementById('testType').value;
+            const messageDiv = document.getElementById('message');
+
+            if (!apiKey) {
+                messageDiv.innerHTML = '<p class="error">Please enter an API key.</p>';
+                return;
+            }
+
+            messageDiv.innerHTML = '<p>Testing API key...</p>';
+
+            // Define the endpoint and payload based on the test type
+            const url = 'https://api.openai.com/v1/chat/completions';
+            const headers = {
+                'Authorization': `Bearer ${apiKey}`,
+                'Content-Type': 'application/json'
+            };
+            const payload = {
+                model: 'gpt-3.5-turbo',
+                messages: [{ role: 'user', content: testType === 'simple' ? 'Hello, world!' : 'Tell me about plants.' }]
+            };
+
+            // Make the API request
+            fetch(url, {
+                method: 'POST',
+                headers: headers,
+                body: JSON.stringify(payload)
+            })
+            .then(response => {
+                if (response.ok) {
+                    messageDiv.innerHTML = '<p class="success">API key is valid.</p>';
+                } else {
+                    messageDiv.innerHTML = `<p class="error">API key is invalid. Status code: ${response.status}</p>`;
+                }
+            })
+            .catch(error => {
+                messageDiv.innerHTML = `<p class="error">Error: ${error.message}</p>`;
+            });
+        }
+    </script>
+</body>
+</html>
