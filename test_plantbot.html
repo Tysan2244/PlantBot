@@ -1,0 +1,88 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PlantBot Test Page</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .console-log { background-color: #f0f0f0; padding: 10px; margin-top: 20px; }
+        .error { color: red; }
+        .response { color: green; }
+    </style>
+</head>
+<body>
+    <h1>PlantBot Test Page</h1>
+    <p>Use this page to test the PlantBot serverless function.</p>
+
+    <form id="plantbot-form">
+        <label for="message">Enter your message:</label><br>
+        <input type="text" id="message" name="message" required><br><br>
+        <button type="submit">Send</button>
+    </form>
+
+    <h2>Test Buttons</h2>
+    <button onclick="sendTestMessage('How often should I water my cactus?')">Watering Cactus</button>
+    <button onclick="sendTestMessage('What is the best soil for succulents?')">Soil for Succulents</button>
+    <button onclick="sendTestMessage('How do I propagate a spider plant?')">Propagate Spider Plant</button>
+
+    <h2>Response</h2>
+    <div id="response" class="response"></div>
+
+    <h2>Console Log</h2>
+    <div id="console-log" class="console-log"></div>
+
+    <script>
+        const apiUrl = '/api/chat'; // Change this to your Vercel endpoint if needed
+
+        document.getElementById('plantbot-form').addEventListener('submit', async function(event) {
+            event.preventDefault();
+            const message = document.getElementById('message').value;
+            await sendMessage(message);
+        });
+
+        async function sendTestMessage(message) {
+            document.getElementById('message').value = message;
+            await sendMessage(message);
+        }
+
+        async function sendMessage(message) {
+            try {
+                logToConsole(`Sending message: ${message}`);
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Error: ${response.statusText}`);
+                }
+
+                const data = await response.json();
+                document.getElementById('response').textContent = data.response;
+                logToConsole(`Received response: ${data.response}`);
+            } catch (error) {
+                document.getElementById('response').textContent = '';
+                logToConsole(`Error: ${error.message}`, true);
+            }
+        }
+
+        function logToConsole(message, isError = false) {
+            const logElement = document.getElementById('console-log');
+            const logMessage = document.createElement('div');
+            logMessage.textContent = message;
+            if (isError) {
+                logMessage.classList.add('error');
+            }
+            logElement.appendChild(logMessage);
+        }
+    </script>
+
+    <h2>Instructions</h2>
+    <p>Enter a message in the input field and click "Send" to test the PlantBot serverless function.</p>
+    <p>Use the test buttons for common plant questions to quickly test responses.</p>
+    <p>Check the console log for debugging information and error messages.</p>
+</body>
+</html>

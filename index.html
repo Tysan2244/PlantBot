@@ -102,9 +102,6 @@
             40% { transform: scale(1); opacity: 1; }
         }
         
-        .api-key-modal { display: none; }
-        .api-key-modal.active { display: flex; }
-        
         .home-texture {
             background: linear-gradient(135deg, var(--warm-cream) 0%, #F5F1EB 100%);
         }
@@ -340,31 +337,6 @@
     </style>
 </head>
 <body class="home-texture">
-    <!-- API Key Modal -->
-    <div id="apiKeyModal" class="api-key-modal fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
-        <div class="cozy-card p-8 max-w-md w-full mx-4">
-            <div class="text-center mb-6">
-                <div class="w-16 h-16 plant-icon-bg rounded-full flex items-center justify-center mx-auto mb-4">
-                    <i class="fas fa-key text-white text-2xl"></i>
-                </div>
-                <h2 class="text-2xl font-bold natural-accent mb-2 font-heading">Update Your OpenAI API Key</h2>
-                <p class="text-gray-600 text-sm">Change your OpenAI API key. It will be stored securely in your browser.</p>
-            </div>
-            <div class="mb-6">
-                <label for="apiKeyInput" class="block text-sm font-medium natural-accent mb-2">OpenAI API Key</label>
-                <input type="password" id="apiKeyInput" placeholder="sk-..." class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:border-sage-green chat-input">
-                <p class="text-xs text-gray-500 mt-2">Get your API key from <a href="https://platform.openai.com/api-keys" target="_blank" class="sage-accent hover:underline">OpenAI Platform</a></p>
-            </div>
-            <div class="flex space-x-3">
-                <button id="saveApiKey" class="flex-1 warm-button text-white py-3 px-4 rounded-lg font-medium">
-                    Save & Update
-                </button>
-                <button id="cancelApiKey" class="px-4 py-3 natural-accent hover:text-gray-800 transition-colors">
-                    Cancel
-                </button>
-            </div>
-        </div>
-    </div>
 
     <!-- Mobile Navigation -->
     <div id="mobileNav" class="mobile-nav">
@@ -1170,22 +1142,11 @@
         // PlantBot AI Chat System
         class PlantBot {
             constructor() {
-                // Pre-configured API key
-                this.apiKey = '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';
-                
-                // Store API key in localStorage for persistence
-                if (!localStorage.getItem('openai_api_key')) {
-                    localStorage.setItem('openai_api_key', this.apiKey);
-                } else {
-                    this.apiKey = localStorage.getItem('openai_api_key');
-                }
-                
                 this.chatMessages = document.getElementById('chatMessages');
                 this.chatInput = document.getElementById('chatInput');
                 this.sendButton = document.getElementById('sendButton');
                 this.typingIndicator = document.getElementById('typingIndicator');
                 this.statusDisplay = document.getElementById('statusDisplay');
-                this.apiKeyModal = document.getElementById('apiKeyModal');
                 
                 this.initializeEventListeners();
                 this.updateStatus('Ready to help your plants thrive! 🏡');
@@ -1202,43 +1163,6 @@
                         this.sendMessage();
                     }
                 });
-
-                // API Key modal handlers
-                document.getElementById('saveApiKey').addEventListener('click', () => this.saveApiKey());
-                document.getElementById('cancelApiKey').addEventListener('click', () => this.hideApiKeyModal());
-                
-                // API Key input enter key
-                document.getElementById('apiKeyInput').addEventListener('keypress', (e) => {
-                    if (e.key === 'Enter') {
-                        this.saveApiKey();
-                    }
-                });
-            }
-
-            showApiKeyModal() {
-                this.apiKeyModal.classList.add('active');
-                document.getElementById('apiKeyInput').focus();
-            }
-
-            hideApiKeyModal() {
-                this.apiKeyModal.classList.remove('active');
-            }
-
-            saveApiKey() {
-                const apiKey = document.getElementById('apiKeyInput').value.trim();
-                if (apiKey) {
-                    if (apiKey.startsWith('sk-')) {
-                        this.apiKey = apiKey;
-                        localStorage.setItem('openai_api_key', apiKey);
-                        this.hideApiKeyModal();
-                        this.updateStatus('API key updated! Ready to help your plants.');
-                        document.getElementById('apiKeyInput').value = '';
-                    } else {
-                        alert('Please enter a valid OpenAI API key (starts with "sk-")');
-                    }
-                } else {
-                    alert('Please enter your API key');
-                }
             }
 
             updateStatus(message) {
@@ -1335,20 +1259,19 @@
                 this.setLoading(true);
 
                 try {
-                    const response = await this.callOpenAI(message);
+                    const response = await this.callChatAPI(message);
                     this.addMessage(response);
                     this.updateStatus('Hope that helps your plant family! 🌿');
                 } catch (error) {
                     console.error('Error:', error);
-                    let errorMessage = 'Oops! Something went wrong. Let me try to help you again.';
+                    let errorMessage = 'Oops! Something went wrong with my plant knowledge. Let me try again.';
                     
-                    if (error.message.includes('401')) {
-                        errorMessage = 'I need a valid API key to help you. Please check your OpenAI API key in settings.';
-                        this.showApiKeyModal();
+                    if (error.message.includes('503')) {
+                        errorMessage = 'I\'m having trouble accessing my plant database right now. Please try again in a moment! 🌱';
                     } else if (error.message.includes('429')) {
                         errorMessage = 'Lots of plant questions today! Please wait a moment and try again.';
-                    } else if (error.message.includes('403')) {
-                        errorMessage = 'Having trouble accessing my plant knowledge. Please check your API settings.';
+                    } else if (error.message.includes('500')) {
+                        errorMessage = 'My plant knowledge database is having a moment. Please try your question again! 🌿';
                     }
                     
                     this.addMessage(errorMessage, false, true);
@@ -1358,80 +1281,26 @@
                 }
             }
 
-            async callOpenAI(userMessage) {
-                const systemPrompt = `You are PlantBot, a warm and friendly AI assistant who specializes exclusively in houseplant care and indoor gardening. You have the personality of a knowledgeable, caring friend who loves plants and wants to help people create thriving indoor gardens in their homes.
-
-PERSONALITY & TONE:
-- Warm, friendly, and encouraging like a caring plant-loving friend
-- Use cozy, home-focused language that makes people feel comfortable
-- Be enthusiastic but not overwhelming
-- Show genuine care for both the plants and the plant parent
-- Use gentle humor when appropriate
-- Include relevant emojis occasionally (🌱🌿🍃💚) but don't overdo it
-
-EXPERTISE FOCUS - ONLY answer questions about:
-- Indoor houseplant care and maintenance
-- Watering schedules, techniques, and troubleshooting
-- Light requirements for houseplants (low, medium, bright indirect)
-- Soil, fertilizer, and nutrition for indoor plants
-- Common houseplant problems (yellowing leaves, brown tips, pests, diseases)
-- Plant propagation methods for houseplants
-- Repotting and plant maintenance
-- Specific care for popular houseplants (snake plants, pothos, monstera, fiddle leaf figs, peace lilies, rubber plants, ZZ plants, spider plants, etc.)
-- Indoor air quality, humidity, and environmental factors
-- Seasonal care adjustments for houseplants
-- Plant placement and room considerations
-- Pet-safe houseplants
-
-IMPORTANT RESTRICTIONS:
-- If asked about outdoor gardening, landscaping, vegetables, or non-houseplant topics, politely redirect: "I'm your cozy houseplant companion! I focus on helping with indoor plants. For that question about [topic], I'd recommend checking with a general gardening expert. But is there anything about your houseplants I can help with?"
-- Keep responses focused on creating a healthy, happy home environment with plants
-- Frame advice in terms of home life and indoor living
-
-RESPONSE STYLE:
-- Keep responses helpful but conversational (like talking to a friend)
-- Provide practical, actionable advice
-- When appropriate, relate advice to home life ("this would work great in your living room" or "perfect for that sunny kitchen window")
-- If unsure about something specific, suggest consulting with a local nursery but offer what general guidance you can
-- End responses with encouragement or a follow-up question when appropriate
-
-Remember: You're not just giving plant care advice - you're helping people create beautiful, healthy plant-filled homes that make them happy.`;
-
-                const response = await fetch('https://api.openai.com/v1/chat/completions', {
+            async callChatAPI(userMessage) {
+                const response = await fetch('/api/chat', {
                     method: 'POST',
                     headers: {
-                        'Authorization': `Bearer ${this.apiKey}`,
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({
-                        model: 'gpt-4',
-                        messages: [
-                            { role: 'system', content: systemPrompt },
-                            { role: 'user', content: userMessage }
-                        ],
-                        max_tokens: 600,
-                        temperature: 0.7
-                    })
+                    body: JSON.stringify({ message: userMessage })
                 });
 
                 if (!response.ok) {
-                    if (response.status === 401) {
-                        throw new Error('401: Invalid API key');
-                    } else if (response.status === 429) {
-                        throw new Error('429: Too many requests');
-                    } else if (response.status === 403) {
-                        throw new Error('403: Access denied');
-                    }
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
 
                 const data = await response.json();
                 
                 if (data.error) {
-                    throw new Error(data.error.message);
+                    throw new Error(data.error);
                 }
 
-                return data.choices[0].message.content;
+                return data.response;
             }
         }
 
@@ -1541,9 +1410,9 @@ Remember: You're not just giving plant care advice - you're helping people creat
 </html>
     <script id="html_badge_script1">
         window.__genspark_remove_badge_link = "https://www.genspark.ai/api/html_badge/" +
-            "remove_badge?token=To%2FBnjzloZ3UfQdcSaYfDtksag1vbnoGjXi7YWb3cFLZAicNdT%2BboEP3086C7hCOmBGNWNTd6m9arjMd3aDodJ8rqpePEVyKwz2gAIcEiH1E5Jzk0M7QLJm6iQReyA0oGppJn9JsmR6UCsp39XCVmPLLeW1d3%2BFqC%2FQdseNu3szrq0wjbWL3G5nQgm3kWwZMBd8xDRmYlrGz5dbZSxtVu7sYcUib%2Bxxx3MWBBrnVWteylYgplTg2wOkYZqPwPbs03n3VHNJq0qEqPOWHdBvMjl44xr24tJ5%2BgnB8pWx98KxYN3M7p5poPki5UnH%2BKSmuMo11isHHLS6gL4awQ4P%2BIyBHRD9bUuNNzLRSEY1cT%2BJb%2FHgIBp6crWAHpB1GpaqLDtTgLsAn9SMYGg6IcVF04p2EQFusrkbFDoDzmowVizsnWBiN0zvmS9EChRGi8T9LkbHcQm5xjPiA1BEWWIC5XsNhncH5mshVfaWEteZfY0LaEAa51Pwr7Q6lrv2oigPedx7ZGMoBUVxLyW28AvbvML94UhmYiQfHX%2BLoTCpY2x8%3D";
+            "remove_badge?token=To%2FBnjzloZ3UfQdcSaYfDk8TbmS0Yn9HenCZmjQX9zUEdLMEsQQFnFdE83nFxAeEj9btomHSI0YF1n904mPaF37REsl55Y2mgbORA6pnwnavbyDGKRe2UQs%2Fgt3L6KlwJrV5jVFYNzye6fL5Iov0VE1SK%2BsIEmXddu4fLosO%2BJ5Y5kOqLx78fMbAEMkTUUMar%2FZdhLOhobah%2B5qQXZ2i%2FSI2OLxl97ms9G8D%2BEFQCy1U4sOL%2Fjg9pG2JHHugHCcuVMJY%2BS9FmfwQxQ%2FyWV6caumcn75KB4oGej09zBund35XONYMiqIsaYP%2FPptmRDFhEbe0k9ZHae6nCvs%2FSQprea4vtEtux2nZSiU7XLIAr%2FMeTRonRuyjIq1HxCx%2F%2FKN6WmRmf6XKaR0zMQxxGJLCvr2oX2wHZcOlvTMJlqwUht0KM0Oird0I8FeQ5hCF5Z6MjsRJugfFxrspetZyYm7Dhhoy1ScKwlRZ8vjYFBUHZaw9wwJS1TrUxp1RfspL9KS%2BbCyDuyeWQyjjkI1vIRbRnw%3D%3D";
         window.__genspark_locale = "en-US";
-        window.__genspark_token = "To/BnjzloZ3UfQdcSaYfDtksag1vbnoGjXi7YWb3cFLZAicNdT+boEP3086C7hCOmBGNWNTd6m9arjMd3aDodJ8rqpePEVyKwz2gAIcEiH1E5Jzk0M7QLJm6iQReyA0oGppJn9JsmR6UCsp39XCVmPLLeW1d3+FqC/QdseNu3szrq0wjbWL3G5nQgm3kWwZMBd8xDRmYlrGz5dbZSxtVu7sYcUib+xxx3MWBBrnVWteylYgplTg2wOkYZqPwPbs03n3VHNJq0qEqPOWHdBvMjl44xr24tJ5+gnB8pWx98KxYN3M7p5poPki5UnH+KSmuMo11isHHLS6gL4awQ4P+IyBHRD9bUuNNzLRSEY1cT+Jb/HgIBp6crWAHpB1GpaqLDtTgLsAn9SMYGg6IcVF04p2EQFusrkbFDoDzmowVizsnWBiN0zvmS9EChRGi8T9LkbHcQm5xjPiA1BEWWIC5XsNhncH5mshVfaWEteZfY0LaEAa51Pwr7Q6lrv2oigPedx7ZGMoBUVxLyW28AvbvML94UhmYiQfHX+LoTCpY2x8=";
+        window.__genspark_token = "To/BnjzloZ3UfQdcSaYfDk8TbmS0Yn9HenCZmjQX9zUEdLMEsQQFnFdE83nFxAeEj9btomHSI0YF1n904mPaF37REsl55Y2mgbORA6pnwnavbyDGKRe2UQs/gt3L6KlwJrV5jVFYNzye6fL5Iov0VE1SK+sIEmXddu4fLosO+J5Y5kOqLx78fMbAEMkTUUMar/ZdhLOhobah+5qQXZ2i/SI2OLxl97ms9G8D+EFQCy1U4sOL/jg9pG2JHHugHCcuVMJY+S9FmfwQxQ/yWV6caumcn75KB4oGej09zBund35XONYMiqIsaYP/PptmRDFhEbe0k9ZHae6nCvs/SQprea4vtEtux2nZSiU7XLIAr/MeTRonRuyjIq1HxCx//KN6WmRmf6XKaR0zMQxxGJLCvr2oX2wHZcOlvTMJlqwUht0KM0Oird0I8FeQ5hCF5Z6MjsRJugfFxrspetZyYm7Dhhoy1ScKwlRZ8vjYFBUHZaw9wwJS1TrUxp1RfspL9KS+bCyDuyeWQyjjkI1vIRbRnw==";
     </script>
     
     <script id="html_notice_dialog_script" src="https://www.genspark.ai/notice_dialog.js"></script>
