@@ -19,3 +19,20 @@ PlantBot is a static HTML website designed to provide users with plant care tips
 2. **Navigate to the Project Directory**: Use the terminal to navigate to the project directory.
 3. **Install Dependencies**: Run `npm install` to install any necessary dependencies.
 4. **Deploy to Vercel**: Use `vercel` command to deploy the site.
+
+## Deployment Instructions
+To deploy the PlantBot Plant Care Chatbot on Vercel, follow these steps:
+1. **Install Vercel CLI**: Ensure you have the Vercel CLI installed by running `npm install -g vercel`.
+2. **Login to Vercel**: Use `vercel login` to authenticate your Vercel account.
+3. **Deploy the Project**: Navigate to the project directory and run `vercel` to deploy the site.
+
+## Configuration Details
+The project uses a `vercel.json` file for configuration:
+- **Builds**: Uses `@vercel/static` for serving static HTML files.
+- **Routes**: Redirects all requests to `index.html` for SPA behavior.
+- **Headers**: Sets cache control headers for performance optimization.
+
+## Project Information
+- **Repository**: [GitHub Repository URL]
+- **License**: MIT License
+- **Author**: Your Name
